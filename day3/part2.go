@@ -41,13 +41,8 @@ func set(s string) string {
 }
 
 func sharedItem(group []string) string {
-
 	seen := make(map[rune]int)
-	for _, r := range set(group[0]) {
-		seen[r] += 1
-	}
-
-	for _, rucksack := range group[1:] {
+	for _, rucksack := range group {
 		for _, r := range set(rucksack) {
 			seen[r] += 1
 		}
