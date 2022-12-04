@@ -28,12 +28,8 @@ func contained(in string) bool {
 
 	ll, lh, rl, rh := parsePair(in)
 
-	if ll >= rl && lh <= rh { // left contained in right
-		return true
-	} else if rl >= ll && rh <= lh { // right contained in left
-		return true
-	}
-	return false
+	// left contains right, or right contains left
+	return ll >= rl && lh <= rh || rl >= ll && rh <= lh
 }
 
 func overlapped(in string) bool {
@@ -41,11 +37,7 @@ func overlapped(in string) bool {
 	ll, lh, rl, rh := parsePair(in)
 
 	// if left high overlaps right, or right high overlaps left
-	if lh >= rl && lh <= rh || rh >= ll && rh <= lh {
-		return true
-	}
-
-	return false
+	return lh >= rl && lh <= rh || rh >= ll && rh <= lh
 }
 
 func part1() int {
