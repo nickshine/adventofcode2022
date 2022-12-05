@@ -14,14 +14,14 @@ type stack struct {
 	v []string
 }
 
-func (s *stack) pop() string {
-	item := s.v[len(s.v)-1]
-	s.v = s.v[:len(s.v)-1]
-	return item
+func (s *stack) pop(n int) []string {
+	items := s.v[len(s.v)-n:]
+	s.v = s.v[:len(s.v)-n]
+	return items
 }
 
-func (s *stack) push(item string) {
-	s.v = append(s.v, item)
+func (s *stack) push(items ...string) {
+	s.v = append(s.v, items...)
 }
 
 // returns a slice of stacks
@@ -74,18 +74,38 @@ func part1() string {
 		moves, from, to := step[0], step[1], step[2]
 
 		for i := 0; i < moves; i++ {
-			crate := stacks[from-1].pop()
-			stacks[to-1].push(crate)
+			crate := stacks[from-1].pop(1)
+			stacks[to-1].push(crate...)
 		}
 	}
 
 	var top []string
 	for _, stack := range stacks {
-		top = append(top, stack.pop())
+		top = append(top, stack.pop(1)...)
+	}
+	return strings.Join(top, "")
+}
+
+func part2() string {
+	lines := strings.Split(strings.TrimRight(input, "\n"), "\n\n")
+	stacks := parseStacks(lines[0])
+	steps := parseSteps(lines[1])
+
+	for _, step := range steps {
+		moves, from, to := step[0], step[1], step[2]
+
+		crates := stacks[from-1].pop(moves)
+		stacks[to-1].push(crates...)
+	}
+
+	var top []string
+	for _, stack := range stacks {
+		top = append(top, stack.pop(1)...)
 	}
 	return strings.Join(top, "")
 }
 
 func main() {
 	fmt.Println(part1())
+	fmt.Println(part2())
 }
