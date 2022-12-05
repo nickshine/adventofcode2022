@@ -65,6 +65,14 @@ func parseSteps(in string) [][]int {
 	return steps
 }
 
+func tops(s []stack) string {
+	var top []string
+	for _, stack := range s {
+		top = append(top, stack.pop(1)...)
+	}
+	return strings.Join(top, "")
+}
+
 func part1() string {
 	lines := strings.Split(strings.TrimRight(input, "\n"), "\n\n")
 	stacks := parseStacks(lines[0])
@@ -79,11 +87,7 @@ func part1() string {
 		}
 	}
 
-	var top []string
-	for _, stack := range stacks {
-		top = append(top, stack.pop(1)...)
-	}
-	return strings.Join(top, "")
+	return tops(stacks)
 }
 
 func part2() string {
@@ -98,11 +102,7 @@ func part2() string {
 		stacks[to-1].push(crates...)
 	}
 
-	var top []string
-	for _, stack := range stacks {
-		top = append(top, stack.pop(1)...)
-	}
-	return strings.Join(top, "")
+	return tops(stacks)
 }
 
 func main() {
