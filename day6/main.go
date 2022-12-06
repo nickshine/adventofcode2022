@@ -16,9 +16,7 @@ func scan(size int) int {
 	seen[in[l]] = l
 
 	for {
-		if r == len(in)-1 {
-			break
-		} else if r-l == size {
+		if r == len(in) || r-l == size {
 			break
 		} else if idx, ok := seen[in[r]]; ok {
 			l, r = idx+1, idx+2
