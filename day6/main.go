@@ -11,10 +11,10 @@ var input string
 
 func scan(size int) int {
 	in := strings.TrimSpace(input)
-
 	l, r := 0, 1
 	seen := make(map[byte]int, size)
-	seen[in[l]] = 0
+	seen[in[l]] = l
+
 	for {
 		if r == len(in)-1 {
 			break
