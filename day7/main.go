@@ -3,7 +3,6 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -135,14 +134,18 @@ func part2() int {
 	deleteMin := unusedMin - unused
 
 	dirSizes := sizes(root)
-	sort.Ints(dirSizes)
+	var min int
 	for _, s := range dirSizes {
 		if s >= deleteMin {
-			return s
+			if min == 0 {
+				min = s
+			} else if s < min {
+				min = s
+			}
 		}
 	}
 
-	return -1
+	return min
 }
 
 func main() {
