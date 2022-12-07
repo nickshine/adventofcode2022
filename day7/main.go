@@ -66,23 +66,23 @@ func (d *dir) size() int {
 
 func buildFS(in string) *dir {
 	lines := strings.Split(in, "\n")
-	// di)
-	var curr, root *dir
-	root = newDir("/", nil)
-	curr = root
+	root := newDir("/", nil)
+	curr := root
 
 	for i := 1; i < len(lines); i++ {
 		parts := strings.Fields(lines[i])
 
 		if parts[0] == "$" && parts[1] == "cd" {
 			name := parts[2]
-			if name == ".." {
+			switch name {
+			case "/":
+				curr = root
+			case "..":
 				curr = curr.parent
-			} else if _, ok := curr.dirs[name]; ok {
-				curr = curr.dirs[name]
-			} else {
-				child := newDir(name, curr)
-				curr = child
+			default:
+				if _, ok := curr.dirs[name]; ok {
+					curr = curr.dirs[name]
+				}
 			}
 		} else if parts[0] == "dir" {
 			name := parts[1]
