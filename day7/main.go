@@ -74,27 +74,18 @@ func buildFS(in string) *dir {
 	for i := 1; i < len(lines); i++ {
 		parts := strings.Fields(lines[i])
 
-		if parts[0] == "$" {
-			if parts[1] == "cd" {
-				name := parts[2]
-				if name == ".." {
-					fmt.Printf("Traversing up a directory from %s, to %s\n", curr.name, curr.parent.name)
-					curr = curr.parent
-				} else if _, ok := curr.dirs[name]; ok {
-					fmt.Printf("Traversing down a directory from %s, to %s\n", curr.name, name)
-					curr = curr.dirs[name]
-				} else {
-					fmt.Printf("New dir that hasn't been seen: %s\n", name)
-					child := newDir(name, curr)
-					curr = child
-				}
-
-			} else if parts[1] == "ls" {
-				fmt.Printf("Listing dirs/files in directory %s\n", curr.name)
+		if parts[0] == "$" && parts[1] == "cd" {
+			name := parts[2]
+			if name == ".." {
+				curr = curr.parent
+			} else if _, ok := curr.dirs[name]; ok {
+				curr = curr.dirs[name]
+			} else {
+				child := newDir(name, curr)
+				curr = child
 			}
 		} else if parts[0] == "dir" {
 			name := parts[1]
-			fmt.Printf("ls dir %s in directory %s\n", name, curr.name)
 			if _, ok := curr.dirs[name]; !ok {
 				curr.dirs[name] = newDir(name, curr)
 			}
@@ -102,7 +93,6 @@ func buildFS(in string) *dir {
 			// is file
 			size, _ := strconv.Atoi(parts[0])
 			name := parts[1]
-			fmt.Printf("ls file %s in directory %s\n", name, curr.name)
 			if _, ok := curr.files[name]; !ok {
 				curr.files[name] = &file{size: size, name: name}
 			}
@@ -128,7 +118,6 @@ func part1() int {
 	root := buildFS(strings.TrimSpace(input))
 	root.display(0)
 	dirSizes := sizes(root)
-	fmt.Println(dirSizes)
 	sum := 0
 	for _, s := range dirSizes {
 		if s <= 100000 {
@@ -147,7 +136,6 @@ func part2() int {
 
 	dirSizes := sizes(root)
 	sort.Ints(dirSizes)
-	fmt.Println(dirSizes)
 	for _, s := range dirSizes {
 		if s >= deleteMin {
 			return s
