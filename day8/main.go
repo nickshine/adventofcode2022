@@ -44,11 +44,7 @@ func isPerimeter(grid [][]int, x, y int) bool {
 }
 
 func part1(grid [][]int) int {
-	fmt.Printf("perimeter size: %d\n", calcPerimeter(grid))
-
 	visible := 0
-
-	fmt.Printf("len grid: %d x %d\n", len(grid), len(grid[0]))
 
 	for x, row := range grid {
 		for y, tree := range row {
@@ -72,7 +68,6 @@ func part1(grid [][]int) int {
 func score(grid [][]int, tree, x, y, dx, dy int) int {
 
 	if y < 0 || x < 0 || x >= len(grid) || y >= len(grid[0]) {
-		fmt.Printf("Out of bounds: grid[%d][%d]\n", x, y)
 		return 0
 	}
 
