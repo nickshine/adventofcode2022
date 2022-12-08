@@ -31,13 +31,10 @@ func calcPerimeter(grid [][]int) int {
 }
 
 func isVisible(grid [][]int, tree, x, y, dx, dy int) bool {
-	// out of bounds
 	if y < 0 || x < 0 || x >= len(grid) || y >= len(grid[0]) {
-		fmt.Printf("Out of bounds: grid[%d][%d]\n", x, y)
 		return true
 	}
 
-	// fmt.Printf("grid[%d][%d]: %d < %d (tree) ? %t\n", x, y, grid[x][y], tree, grid[x][y] < tree)
 	return grid[x][y] < tree && isVisible(grid, tree, x+dx, y+dy, dx, dy)
 }
 
@@ -47,8 +44,6 @@ func isPerimeter(grid [][]int, x, y int) bool {
 }
 
 func part1(grid [][]int) int {
-
-	fmt.Println(grid)
 	fmt.Printf("perimeter size: %d\n", calcPerimeter(grid))
 
 	visible := 0
@@ -58,17 +53,14 @@ func part1(grid [][]int) int {
 	for x, row := range grid {
 		for y, tree := range row {
 			if isPerimeter(grid, x, y) {
-				// fmt.Printf("Perimeter: grid[%d][%d]: %d\n", x, y, grid[x][y])
 				visible++
 				continue
 			}
 
-			// fmt.Printf("Non perimeter: grid[%d][%d]: %d, checking left\n", x, y, grid[x][y])
 			if isVisible(grid, tree, x, y-1, 0, -1) || // left
 				isVisible(grid, tree, x, y+1, 0, 1) || // right
 				isVisible(grid, tree, x-1, y, -1, 0) || // up
 				isVisible(grid, tree, x+1, y, 1, 0) { // down
-				// fmt.Println("is visible")
 				visible++
 			}
 		}
@@ -77,7 +69,38 @@ func part1(grid [][]int) int {
 	return visible
 }
 
+func score(grid [][]int, tree, x, y, dx, dy int) int {
+
+	if y < 0 || x < 0 || x >= len(grid) || y >= len(grid[0]) {
+		fmt.Printf("Out of bounds: grid[%d][%d]\n", x, y)
+		return 0
+	}
+
+	if grid[x][y] >= tree {
+		return 1
+	}
+
+	return 1 + score(grid, tree, x+dx, y+dy, dx, dy)
+}
+
+func part2(grid [][]int) int {
+	max := 0
+	for x, row := range grid {
+		for y, tree := range row {
+			score := score(grid, tree, x, y-1, 0, -1) *
+				score(grid, tree, x, y+1, 0, 1) *
+				score(grid, tree, x-1, y, -1, 0) *
+				score(grid, tree, x+1, y, 1, 0)
+			if score > max {
+				max = score
+			}
+		}
+	}
+
+	return max
+}
+
 func main() {
 	fmt.Printf("part 1: %d\n", part1(readGrid(input)))
-	// fmt.Printf("part 2: %d\n", part2())
+	fmt.Printf("part 2: %d\n", part2(readGrid(input)))
 }
