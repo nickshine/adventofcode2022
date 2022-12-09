@@ -22,123 +22,63 @@ type knot struct {
 	y int
 }
 
-func (s *knot) equal(k *knot) bool {
-	return s.x == k.x && s.y == k.y
-}
+func move(h, t *knot) {
 
-func (s *knot) adjacent(k *knot) bool {
-	dx := abs(k.x - s.x)
-	dy := abs(k.y - s.y)
+	xd := h.x - t.x
+	yd := h.y - t.y
 
-	return dx == 1 && dy == 1 ||
-		dx == 1 && dy == 0 ||
-		dx == 0 && dy == 1
-}
-
-func travel(h, t *knot, dx, dy, n int, seen map[knot]int) {
-
-	for i := 0; i < n; i++ {
-
-		h.x, h.y = h.x+dx, h.y+dy
-		if t.adjacent(h) || t.equal(h) {
-			// t doesn't move
-			continue
+	switch {
+	case abs(xd) < 2 && abs(yd) < 2: // t equal or adjacent to h
+		return
+	case xd == 0 && yd != 0: // t moves U or D
+		if yd > 1 {
+			t.y++
+		} else {
+			t.y--
+		}
+	case yd == 0 && xd != 0: // t moves L or R
+		if xd > 1 {
+			t.x++
+		} else {
+			t.x--
 		}
 
-		// if not adjacent/equal, t moves in same direction as head (dx,dy)
-		t.x, t.y = t.x+dx, t.y+dy
-
-		// if h travels L or R && h.y != t.y, t needs to move U or D to h
-		if dx != 0 && h.y != t.y {
-			t.y = h.y
+	default: // t moves diagonal
+		if yd > 0 {
+			t.y++
+		} else {
+			t.y--
+		}
+		if xd > 0 {
+			t.x++
+		} else {
+			t.x--
 		}
 
-		// if h travels U or D && h.x != t.x, t needs to move L or R to h
-		if dy != 0 && h.x != t.x {
-			t.x = h.x
-		}
-
-		seen[*t]++
 	}
 }
 
-func travel2(rope []*knot, dx, dy, n int, seen map[knot]int) {
+func travel(rope []*knot, dx, dy, n int, seen map[knot]bool) {
 
 	h, t := rope[0], rope[len(rope)-1]
 	for m := 0; m < n; m++ {
 		h.x, h.y = h.x+dx, h.y+dy
 
 		for i := 1; i < len(rope); i++ {
-			leader, follower := rope[i-1], rope[i]
-
-			xd := leader.x - follower.x
-			yd := leader.y - follower.y
-
-			if yd == 2 && xd >= 1 || yd >= 1 && xd == 2 { // follower moves U and R
-				follower.x, follower.y = follower.x+1, follower.y+1
-			} else if yd >= 1 && xd == -2 || yd == 2 && xd <= -1 { // follower moves U and L
-				follower.x, follower.y = follower.x-1, follower.y+1
-			} else if yd == -2 && xd <= -1 || yd <= -1 && xd == -2 { // follower moves D and L
-				follower.x, follower.y = follower.x-1, follower.y-1
-			} else if yd == -2 && xd >= 1 || yd <= -1 && xd == 2 { // follower moves D and R
-				follower.x, follower.y = follower.x+1, follower.y-1
-			} else if xd == 0 && yd > 1 { // follower moves U
-				follower.y++
-			} else if xd == 0 && yd < -1 { // follower moves D
-				follower.y--
-			} else if xd > 1 && yd == 0 { // follower moves R
-				follower.x++
-			} else if xd < -1 && yd == 0 { // follower moves L
-				follower.x--
-			}
+			move(rope[i-1], rope[i])
 		}
-		seen[*t]++
+		seen[*t] = true
 	}
 }
 
-func part1(in string) int {
+func run(in string, size int) int {
 	lines := strings.Split(in, "\n")
 
-	seen := map[knot]int{}
-
-	h, t := &knot{0, 0}, &knot{0, 0}
-	seen[*t]++
-
-	for _, l := range lines {
-		parts := strings.Fields(l)
-		dir := parts[0]
-		n, err := strconv.Atoi(parts[1])
-		if err != nil {
-			panic(err)
-		}
-
-		switch dir {
-		case "L":
-			travel(h, t, -1, 0, n, seen)
-		case "R":
-			travel(h, t, 1, 0, n, seen)
-		case "U":
-			travel(h, t, 0, 1, n, seen)
-		case "D":
-			travel(h, t, 0, -1, n, seen)
-		default:
-			panic("invalid input")
-		}
-
-	}
-
-	return len(seen)
-}
-
-func part2(in string) int {
-	lines := strings.Split(in, "\n")
-
-	rope := make([]*knot, 10)
+	rope := make([]*knot, size)
 	for i := 0; i < len(rope); i++ {
 		rope[i] = &knot{0, 0}
 	}
-	seen := map[knot]int{}
-	seen[knot{0, 0}]++
+	seen := map[knot]bool{{0, 0}: true}
 
 	for _, l := range lines {
 		parts := strings.Fields(l)
@@ -150,13 +90,13 @@ func part2(in string) int {
 
 		switch dir {
 		case "L":
-			travel2(rope, -1, 0, n, seen)
+			travel(rope, -1, 0, n, seen)
 		case "R":
-			travel2(rope, 1, 0, n, seen)
+			travel(rope, 1, 0, n, seen)
 		case "U":
-			travel2(rope, 0, 1, n, seen)
+			travel(rope, 0, 1, n, seen)
 		case "D":
-			travel2(rope, 0, -1, n, seen)
+			travel(rope, 0, -1, n, seen)
 		default:
 			panic("invalid input")
 		}
@@ -167,6 +107,6 @@ func part2(in string) int {
 }
 
 func main() {
-	fmt.Printf("part 1: %d\n", part1(strings.TrimSpace(input)))
-	fmt.Printf("part 2: %d\n", part2(strings.TrimSpace(input)))
+	fmt.Printf("part 1: %d\n", run(strings.TrimSpace(input), 2))
+	fmt.Printf("part 2: %d\n", run(strings.TrimSpace(input), 10))
 }
