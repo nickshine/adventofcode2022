@@ -40,7 +40,6 @@ func travel(h, t *knot, dx, dy, n int, seen map[knot]int) {
 	for i := 0; i < n; i++ {
 
 		h.x, h.y = h.x+dx, h.y+dy
-		// fmt.Printf("H: %d,%d\n", h.x, h.y)
 		if t.adjacent(h) || t.equal(h) {
 			// t doesn't move
 			continue
@@ -63,6 +62,40 @@ func travel(h, t *knot, dx, dy, n int, seen map[knot]int) {
 	}
 }
 
+func travel2(rope []*knot, dx, dy, n int, seen map[knot]int) {
+
+	h, t := rope[0], rope[len(rope)-1]
+	for m := 0; m < n; m++ {
+		h.x, h.y = h.x+dx, h.y+dy
+
+		for i := 1; i < len(rope); i++ {
+			leader, follower := rope[i-1], rope[i]
+
+			xd := leader.x - follower.x
+			yd := leader.y - follower.y
+
+			if yd == 2 && xd >= 1 || yd >= 1 && xd == 2 { // follower moves U and R
+				follower.x, follower.y = follower.x+1, follower.y+1
+			} else if yd >= 1 && xd == -2 || yd == 2 && xd <= -1 { // follower moves U and L
+				follower.x, follower.y = follower.x-1, follower.y+1
+			} else if yd == -2 && xd <= -1 || yd <= -1 && xd == -2 { // follower moves D and L
+				follower.x, follower.y = follower.x-1, follower.y-1
+			} else if yd == -2 && xd >= 1 || yd <= -1 && xd == 2 { // follower moves D and R
+				follower.x, follower.y = follower.x+1, follower.y-1
+			} else if xd == 0 && yd > 1 { // follower moves U
+				follower.y++
+			} else if xd == 0 && yd < -1 { // follower moves D
+				follower.y--
+			} else if xd > 1 && yd == 0 { // follower moves R
+				follower.x++
+			} else if xd < -1 && yd == 0 { // follower moves L
+				follower.x--
+			}
+		}
+		seen[*t]++
+	}
+}
+
 func part1(in string) int {
 	lines := strings.Split(in, "\n")
 
@@ -78,13 +111,6 @@ func part1(in string) int {
 		if err != nil {
 			panic(err)
 		}
-
-		// cases in which T doesn't move
-		// - if H coord == T coord (H overlapped T)
-		// - if H coord stays within surrounding T coords
-
-		// case in which T moves diagonally
-		// - if H and T aren't in same row or column and not touching, T will move diagonally
 
 		switch dir {
 		case "L":
@@ -104,7 +130,43 @@ func part1(in string) int {
 	return len(seen)
 }
 
+func part2(in string) int {
+	lines := strings.Split(in, "\n")
+
+	rope := make([]*knot, 10)
+	for i := 0; i < len(rope); i++ {
+		rope[i] = &knot{0, 0}
+	}
+	seen := map[knot]int{}
+	seen[knot{0, 0}]++
+
+	for _, l := range lines {
+		parts := strings.Fields(l)
+		dir := parts[0]
+		n, err := strconv.Atoi(parts[1])
+		if err != nil {
+			panic(err)
+		}
+
+		switch dir {
+		case "L":
+			travel2(rope, -1, 0, n, seen)
+		case "R":
+			travel2(rope, 1, 0, n, seen)
+		case "U":
+			travel2(rope, 0, 1, n, seen)
+		case "D":
+			travel2(rope, 0, -1, n, seen)
+		default:
+			panic("invalid input")
+		}
+	}
+
+	return len(seen)
+
+}
+
 func main() {
 	fmt.Printf("part 1: %d\n", part1(strings.TrimSpace(input)))
-	// fmt.Printf("part 2: %d\n", part2(readGrid(input)))
+	fmt.Printf("part 2: %d\n", part2(strings.TrimSpace(input)))
 }
