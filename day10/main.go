@@ -26,10 +26,6 @@ func display(cycle, x int) {
 
 	pos := cycle % 40
 
-	// if pos == 0 {
-	// 	fmt.Printf("\n")
-	// }
-
 	switch pos {
 	case x - 1, x, x + 1:
 		fmt.Printf("#")
