@@ -76,7 +76,7 @@ func parseOperation(left, operator, right string) (out op) {
 }
 
 func readMonkeys(in []string) []*monkey {
-	monkeys := []*monkey{}
+	var monkeys []*monkey
 
 	for _, m := range in {
 		monkey := &monkey{}
@@ -161,7 +161,7 @@ func doRound(monkeys []*monkey, manage func(int) int) {
 			}
 		}
 		// clear items
-		m.items = []int{}
+		m.items = nil
 	}
 }
 
