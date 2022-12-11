@@ -10,11 +10,6 @@ import (
 //go:embed input.txt
 var input string
 
-type knot struct {
-	x int
-	y int
-}
-
 func checkCycle(cycle, x int, cycles map[int]int) {
 	switch cycle {
 	case 20, 60, 100, 140, 180, 220:
@@ -30,7 +25,7 @@ func display(cycle, x int) {
 	case x - 1, x, x + 1:
 		fmt.Printf("#")
 	default:
-		fmt.Printf(".")
+		fmt.Printf(" ")
 	}
 
 	if pos == 39 {
