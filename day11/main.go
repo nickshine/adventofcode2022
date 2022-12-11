@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-//go:embed example.txt
+//go:embed input.txt
 var input string
 
 type apply func(l, r int) int
@@ -139,45 +139,68 @@ func throw(m *monkey, item int) {
 	m.items = append(m.items, item)
 }
 
-func part1() int {
-	rawMonkeys := strings.Split(strings.TrimSpace(input), "\n\n")
-	monkeys := readMonkeys(rawMonkeys)
-
-	rounds := 20
-
-	for n := 0; n < rounds; n++ {
-
-		for _, m := range monkeys {
-			for _, item := range m.items {
-				m.count++
-				wl := m.op(item) / 3
-				if m.test(wl) {
-					// fmt.Printf("Monkey %d throwing item %d to %d\n", i, wl, m.tID)
-					throw(monkeys[m.tID], wl)
-				} else {
-					// fmt.Printf("Monkey %d throwing item %d to %d\n", i, wl, m.fID)
-					throw(monkeys[m.fID], wl)
-				}
-			}
-			// clear items
-			m.items = []int{}
-		}
-
+func findCommon(monkeys []*monkey) int {
+	common := 1
+	for _, m := range monkeys {
+		common *= m.divisor
 	}
 
+	return common
+}
+
+func doRound(monkeys []*monkey, manage func(int) int) {
+
+	for _, m := range monkeys {
+		for _, item := range m.items {
+			m.count++
+			wl := manage(m.op(item))
+			if m.test(wl) {
+				throw(monkeys[m.tID], wl)
+			} else {
+				throw(monkeys[m.fID], wl)
+			}
+		}
+		// clear items
+		m.items = []int{}
+	}
+}
+
+func maxLevel(monkeys []*monkey) int {
 	counts := []int{}
-	for i, m := range monkeys {
+	for _, m := range monkeys {
 		counts = append(counts, m.count)
-		fmt.Printf("monkey %d: %v, count: %d\n", i, m.items, m.count)
 	}
 
 	sort.Ints(counts)
-
-	fmt.Printf("Max1: %d, max2: %d\n", counts[len(counts)-1], counts[len(counts)-2])
-
 	return counts[len(counts)-1] * counts[len(counts)-2]
 }
 
+func part1(monkeys []*monkey) int {
+	const rounds = 20
+	for n := 0; n < rounds; n++ {
+		doRound(monkeys, func(item int) int {
+			return item / 3
+		})
+	}
+
+	return maxLevel(monkeys)
+}
+
+func part2(monkeys []*monkey) int {
+	const rounds = 10000
+	divisor := findCommon(monkeys)
+
+	for n := 0; n < rounds; n++ {
+		doRound(monkeys, func(v int) int {
+			return v % divisor
+		})
+	}
+
+	return maxLevel(monkeys)
+}
+
 func main() {
-	fmt.Printf("Part 1: %d\n", part1())
+	in := strings.Split(strings.TrimSpace(input), "\n\n")
+	fmt.Printf("Part 1: %d\n", part1(readMonkeys(in)))
+	fmt.Printf("Part 2: %d\n", part2(readMonkeys(in)))
 }
