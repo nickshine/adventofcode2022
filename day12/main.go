@@ -103,10 +103,11 @@ func part1(in string) int {
 
 	for _, row := range m {
 		for _, square := range row {
-			if square.elevation == 'S' {
+			switch square.elevation {
+			case 'S':
 				start = square
 				start.elevation = 'a'
-			} else if square.elevation == 'E' {
+			case 'E':
 				end = square
 				end.elevation = 'z'
 			}
@@ -125,14 +126,15 @@ func part2(in string) int {
 
 	for _, row := range m {
 		for _, square := range row {
-			if square.elevation == 'S' {
+			switch square.elevation {
+			case 'S':
 				start = square
 				start.elevation = 'a'
 				startSquares = append(startSquares, start)
-			} else if square.elevation == 'E' {
+			case 'E':
 				end = square
 				end.elevation = 'z'
-			} else if square.elevation == 'a' {
+			case 'a':
 				startSquares = append(startSquares, square)
 			}
 		}
