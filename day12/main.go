@@ -28,7 +28,7 @@ type heightMap [][]*square
 
 func (h heightMap) String() string {
 	var sb strings.Builder
-	for _, row := range [][]*square(h) {
+	for _, row := range h {
 		for _, col := range row {
 			sb.WriteRune(col.elevation)
 		}
