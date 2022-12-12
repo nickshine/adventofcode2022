@@ -112,11 +112,11 @@ func part2(in string) int {
 				start = square
 				start.elevation = 'a'
 				startSquares = append(startSquares, start)
+			case 'a':
+				startSquares = append(startSquares, square)
 			case 'E':
 				end = square
 				end.elevation = 'z'
-			case 'a':
-				startSquares = append(startSquares, square)
 			}
 		}
 	}
