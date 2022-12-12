@@ -53,25 +53,6 @@ func readMap(in string) heightMap {
 	return hmap
 }
 
-func min(a, b int) int {
-	if a <= b {
-		return a
-	}
-	return b
-}
-
-func minSteps(paths []int) int {
-
-	min := math.MaxInt
-	for _, p := range paths {
-		if p < min {
-			min = p
-		}
-	}
-
-	return min
-}
-
 func visit(m heightMap, x, y int, prev *square, score int) {
 
 	if x < 0 || x >= len(m) || y < 0 || y >= len(m[x]) { // out of bounds
