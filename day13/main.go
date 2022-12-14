@@ -107,9 +107,28 @@ func part1(in string) int {
 	return sum
 }
 
+func part2(in string) int {
+	pairs := parsePairs(in)
+	p2, p6 := 0, 0
+
+	for _, p := range pairs {
+		for _, pp := range p {
+			if compare(pp, []any{[]any{float64(2)}}) == ORDERED {
+				p2++
+			}
+			if compare(pp, []any{[]any{float64(6)}}) == ORDERED {
+				p6++
+			}
+		}
+
+	}
+
+	return (p2 + 1) * (p6 + 2)
+}
+
 func main() {
 	fmt.Printf("Part 1 example: %d\n", part1(exampleInput))
 	fmt.Printf("Part 1: %d\n", part1(input))
-	// fmt.Printf("Part 2 example: %d\n", part2(exampleInput))
-	// fmt.Printf("Part 2: %d\n", part2(input))
+	fmt.Printf("Part 2 example: %d\n", part2(exampleInput))
+	fmt.Printf("Part 2: %d\n", part2(input))
 }
