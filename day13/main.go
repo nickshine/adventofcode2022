@@ -4,6 +4,8 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"reflect"
+	"sort"
 	"strings"
 )
 
@@ -109,21 +111,32 @@ func part1(in string) int {
 
 func part2(in string) int {
 	pairs := parsePairs(in)
-	p2, p6 := 0, 0
+	p2 := []any{[]any{float64(2)}}
+	p6 := []any{[]any{float64(6)}}
 
+	var packets []any
 	for _, p := range pairs {
 		for _, pp := range p {
-			if compare(pp, []any{[]any{float64(2)}}) == ORDERED {
-				p2++
-			}
-			if compare(pp, []any{[]any{float64(6)}}) == ORDERED {
-				p6++
-			}
+			packets = append(packets, pp)
+		}
+	}
+	packets = append(packets, p2)
+	packets = append(packets, p6)
+
+	sort.Slice(packets, func(i, j int) bool {
+		return compare(packets[i], packets[j]) == ORDERED
+	})
+
+	key := 1
+	for i, p := range packets {
+		if reflect.DeepEqual(p, p2) || reflect.DeepEqual(p, p6) {
+			key *= (i + 1)
+
 		}
 
 	}
 
-	return (p2 + 1) * (p6 + 2)
+	return key
 }
 
 func main() {
