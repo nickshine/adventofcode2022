@@ -201,6 +201,6 @@ func run(in string, size, offset, cycles int) {
 }
 
 func main() {
-	// run(exampleInput, 35, 485, 94)
+	run(exampleInput, 35, 485, 94)
 	run(input, 500, 250, 26461)
 }
