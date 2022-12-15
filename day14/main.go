@@ -7,10 +7,6 @@ import (
 	"strings"
 )
 
-const (
-	maxFall = 5000
-)
-
 //go:embed example.txt
 var exampleInput string
 
@@ -159,8 +155,7 @@ func parsePaths(in string, size, offset int) [][]*point {
 
 }
 
-func fall(grid [][]*point, p *point, offset int, count int) {
-
+func fall(grid [][]*point, p *point, offset int) {
 	x, y := p.x-offset, p.y
 
 	d := grid[y+1][x]
@@ -169,18 +164,15 @@ func fall(grid [][]*point, p *point, offset int, count int) {
 
 	switch {
 	case p.isBlocked():
-		fmt.Printf("Start blocked at count %d\n", count)
+		fmt.Println("Start blocked")
 	case d.isAir():
-		fall(grid, d, offset, count+1)
+		fall(grid, d, offset)
 	case d.isBlocked():
 		if !dl.isBlocked() {
-			fall(grid, dl, offset, count+1)
+			fall(grid, dl, offset)
 		} else if !dr.isBlocked() {
-			fall(grid, dr, offset, count+1)
+			fall(grid, dr, offset)
 		} else {
-			if count == maxFall {
-				panic("STOP")
-			}
 			p.v = 'o' // at rest
 		}
 	default:
@@ -195,7 +187,7 @@ func run(in string, size, offset, cycles int) {
 	setPoint(grid, start, offset)
 
 	for i := 0; i < cycles; i++ {
-		fall(grid, start, offset, 0)
+		fall(grid, start, offset)
 	}
 	display(grid)
 }
