@@ -38,8 +38,11 @@ func (p *point) isBlocked() bool {
 	return p.isRock() || p.isSand()
 }
 
-func display(grid [][]*point) {
-	for i := 0; i < len(grid); i++ {
+func display(grid [][]*point, trimY int) {
+	if len(grid) < trimY {
+		panic("trimY too large")
+	}
+	for i := 0; i < trimY; i++ {
 		fmt.Printf("%03d ", i)
 		for j := 0; j < len(grid[i]); j++ {
 			fmt.Printf("%s", grid[i][j])
@@ -189,7 +192,7 @@ func run(in string, size, offset, cycles int) {
 	for i := 0; i < cycles; i++ {
 		fall(grid, start, offset)
 	}
-	display(grid)
+	display(grid, 170)
 }
 
 func main() {
