@@ -8,9 +8,7 @@ import (
 )
 
 const (
-	gridSize = 180
-	xOffset  = 400
-	maxFall  = 5000
+	maxFall = 5000
 )
 
 //go:embed example.txt
@@ -46,7 +44,7 @@ func (p *point) isBlocked() bool {
 
 func display(grid [][]*point) {
 	for i := 0; i < len(grid); i++ {
-		fmt.Printf("%d ", i)
+		fmt.Printf("%03d ", i)
 		for j := 0; j < len(grid[i]); j++ {
 			fmt.Printf("%s", grid[i][j])
 		}
@@ -85,11 +83,8 @@ func pathToPoints(path string) []*point {
 		prev := coords[i-1]
 		cur := coords[i]
 
-		// fmt.Printf("cur: %#v, prev: %#v\n", cur, prev)
-
 		switch {
 		case prev.x == cur.x: // vertical path
-			// fmt.Printf("prev.x == cur.x, %d == %d\n", prev.x, cur.x)
 			x := prev.x
 			var start, end int
 			if prev.y < cur.y {
@@ -104,7 +99,6 @@ func pathToPoints(path string) []*point {
 				points = append(points, &point{x, y, '#'})
 			}
 		case prev.y == cur.y: // horizontal path
-			// fmt.Printf("prev.y == cur.y, %d == %d\n", prev.y, cur.y)
 			y := prev.y
 			var start, end int
 			if prev.x < cur.x {
@@ -131,24 +125,35 @@ func setPoint(grid [][]*point, p *point, offset int) {
 	grid[p.y][p.x-offset] = p
 }
 
-func parsePaths(in string) [][]*point {
+func setFloor(grid [][]*point, y int) {
+	for x := 0; x < len(grid); x++ {
+		grid[y][x] = &point{x, y, '#'}
+	}
+}
+
+func parsePaths(in string, size, offset int) [][]*point {
 	paths := strings.Split(strings.TrimSpace(in), "\n")
 
-	grid := make([][]*point, gridSize)
-	for i := 0; i < gridSize; i++ {
-		grid[i] = make([]*point, gridSize)
+	grid := make([][]*point, size)
+	for i := 0; i < size; i++ {
+		grid[i] = make([]*point, size)
 		for j := 0; j < len(grid[i]); j++ {
-			grid[i][j] = &point{j + xOffset, i, '.'}
+			grid[i][j] = &point{j + offset, i, '.'}
 		}
 	}
 
+	maxY := 0
 	for _, path := range paths {
 		points := pathToPoints(path)
 		for _, p := range points {
-			// fmt.Printf("x: %d, y: %d\n", p.x, p.y)
-			setPoint(grid, p, xOffset)
+			if p.y > maxY {
+				maxY = p.y
+			}
+			setPoint(grid, p, offset)
 		}
 	}
+
+	setFloor(grid, maxY+2)
 
 	return grid
 
@@ -163,6 +168,8 @@ func fall(grid [][]*point, p *point, offset int, count int) {
 	dr := grid[y+1][x+1]
 
 	switch {
+	case p.isBlocked():
+		fmt.Printf("Start blocked at count %d\n", count)
 	case d.isAir():
 		fall(grid, d, offset, count+1)
 	case d.isBlocked():
@@ -175,26 +182,25 @@ func fall(grid [][]*point, p *point, offset int, count int) {
 				panic("STOP")
 			}
 			p.v = 'o' // at rest
-			// fmt.Printf("at rest: %d,%d\n", p.x, p.y)
 		}
 	default:
 		panic("unexpected condition")
 	}
 }
 
-func run(in string) {
-	grid := parsePaths(in)
+func run(in string, size, offset, cycles int) {
+	grid := parsePaths(in, size, offset)
 
 	start := &point{500, 0, '+'}
-	setPoint(grid, start, xOffset)
+	setPoint(grid, start, offset)
 
-	for i := 0; i < 888; i++ {
-		fall(grid, start, xOffset, 0)
+	for i := 0; i < cycles; i++ {
+		fall(grid, start, offset, 0)
 	}
 	display(grid)
 }
 
 func main() {
-	run(exampleInput)
-	// run(input)
+	// run(exampleInput, 35, 485, 94)
+	run(input, 500, 250, 26461)
 }
