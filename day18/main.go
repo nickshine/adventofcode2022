@@ -3,7 +3,6 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 )
@@ -170,17 +169,12 @@ func part1(in string) int {
 func part2(in string) int {
 	positions, maxX, maxY, maxZ := parse(in)
 	g := newGrid(maxX+2, maxY+2, maxZ+2) // add 1 to each dimension to allow DFS scan of exterior, empty space
-	surfaceArea := 0
 
 	for _, p := range positions {
-		surfaceArea += g.insert(p[0]+1, p[1]+1, p[2]+1) // shift positions off 1 to make empty 0,0,0 space for DFS
+		g.insert(p[0]+1, p[1]+1, p[2]+1) // shift positions off 1 to make empty 0,0,0 space for DFS
 	}
 
-	log.Printf("surfaceArea: %d", surfaceArea)
-
-	externalSurfaceArea := findSurface(g, 0, 0, 0)
-
-	return externalSurfaceArea
+	return findSurface(g, 0, 0, 0)
 }
 
 func main() {
@@ -189,5 +183,3 @@ func main() {
 	fmt.Printf("Part 2 example: %d\n", part2(exampleInput))
 	fmt.Printf("Part 2: %d\n", part2(input))
 }
-
-// 2556 to low
