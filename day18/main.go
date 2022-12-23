@@ -83,6 +83,11 @@ func (g grid) get(x, y, z int) (int, bool) {
 	return g[z][y][x], true
 }
 
+func (g grid) isFilled(x, y, z int) bool {
+	c, ok := g.get(x, y, z)
+	return ok && c == Filled
+}
+
 // insert inserts the given cube's xyz and returns the surface area gained or lost.
 // It is assumed the grid is large enough to hold the given xyz.
 func (g grid) insert(x, y, z int) int {
@@ -94,39 +99,27 @@ func (g grid) insert(x, y, z int) int {
 
 	// check all 6 sides of cube for adjacent:
 	// z-axis
-	if c, ok := g.get(x, y, z+1); ok {
-		if c == Filled {
-			surfaceAreaDelta -= 2 // current cube loses 1, and the adjacent loses 1
-		}
+	if g.isFilled(x, y, z+1) {
+		surfaceAreaDelta -= 2 // current cube loses 1, and the adjacent loses 1
 	}
-	if c, ok := g.get(x, y, z-1); ok {
-		if c == Filled {
-			surfaceAreaDelta -= 2
-		}
+	if g.isFilled(x, y, z-1) {
+		surfaceAreaDelta -= 2
 	}
 
 	// y-axis
-	if c, ok := g.get(x, y+1, z); ok {
-		if c == Filled {
-			surfaceAreaDelta -= 2
-		}
+	if g.isFilled(x, y+1, z) {
+		surfaceAreaDelta -= 2
 	}
-	if c, ok := g.get(x, y-1, z); ok {
-		if c == Filled {
-			surfaceAreaDelta -= 2
-		}
+	if g.isFilled(x, y-1, z) {
+		surfaceAreaDelta -= 2
 	}
 
 	// x-axis
-	if c, ok := g.get(x+1, y, z); ok {
-		if c == Filled {
-			surfaceAreaDelta -= 2
-		}
+	if g.isFilled(x+1, y, z) {
+		surfaceAreaDelta -= 2
 	}
-	if c, ok := g.get(x-1, y, z); ok {
-		if c == Filled {
-			surfaceAreaDelta -= 2
-		}
+	if g.isFilled(x-1, y, z) {
+		surfaceAreaDelta -= 2
 	}
 
 	g[z][y][x] = Filled
