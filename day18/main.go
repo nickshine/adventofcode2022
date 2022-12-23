@@ -3,6 +3,7 @@ package main
 import (
 	_ "embed"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 )
@@ -16,6 +17,7 @@ var input string
 const (
 	Empty = iota
 	Filled
+	Visited
 )
 
 type grid [][][]int
@@ -127,22 +129,65 @@ func (g grid) insert(x, y, z int) int {
 	return surfaceAreaDelta
 }
 
+func findSurface(g grid, x, y, z int) int {
+	c, ok := g.get(x, y, z)
+	if !ok {
+		return 0
+	}
+
+	switch c {
+	case Visited:
+		return 0
+	case Filled:
+		return 1
+	case Empty:
+		g[z][y][x] = Visited
+	default:
+		panic("unexpected condition")
+	}
+
+	// dfs
+	return findSurface(g, x, y, z+1) +
+		findSurface(g, x, y, z-1) +
+		findSurface(g, x, y+1, z) +
+		findSurface(g, x, y-1, z) +
+		findSurface(g, x+1, y, z) +
+		findSurface(g, x-1, y, z)
+}
+
 func part1(in string) int {
 	positions, maxX, maxY, maxZ := parse(in)
-	grid := newGrid(maxX, maxY, maxZ)
+	g := newGrid(maxX, maxY, maxZ)
 	surfaceArea := 0
 
 	for _, p := range positions {
-		surfaceArea += grid.insert(p[0], p[1], p[2])
-
+		surfaceArea += g.insert(p[0], p[1], p[2])
 	}
 
 	return surfaceArea
 }
 
+func part2(in string) int {
+	positions, maxX, maxY, maxZ := parse(in)
+	g := newGrid(maxX+2, maxY+2, maxZ+2) // add 1 to each dimension to allow DFS scan of exterior, empty space
+	surfaceArea := 0
+
+	for _, p := range positions {
+		surfaceArea += g.insert(p[0]+1, p[1]+1, p[2]+1) // shift positions off 1 to make empty 0,0,0 space for DFS
+	}
+
+	log.Printf("surfaceArea: %d", surfaceArea)
+
+	externalSurfaceArea := findSurface(g, 0, 0, 0)
+
+	return externalSurfaceArea
+}
+
 func main() {
 	fmt.Printf("Part 1 example: %d\n", part1(exampleInput))
 	fmt.Printf("Part 1: %d\n", part1(input))
-	// fmt.Printf("Part 2 example: %d\n", part2(exampleInput))
-	// fmt.Printf("Part 2: %d\n", part2(input))
+	fmt.Printf("Part 2 example: %d\n", part2(exampleInput))
+	fmt.Printf("Part 2: %d\n", part2(input))
 }
+
+// 2556 to low
