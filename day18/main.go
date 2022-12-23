@@ -168,7 +168,7 @@ func part1(in string) int {
 
 func part2(in string) int {
 	positions, maxX, maxY, maxZ := parse(in)
-	g := newGrid(maxX+2, maxY+2, maxZ+2) // add 1 to each dimension to allow DFS scan of exterior, empty space
+	g := newGrid(maxX+2, maxY+2, maxZ+2) // add to each dimension to allow DFS scan of exterior, empty space
 
 	for _, p := range positions {
 		g.insert(p[0]+1, p[1]+1, p[2]+1) // shift positions off 1 to make empty 0,0,0 space for DFS
