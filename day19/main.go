@@ -14,7 +14,10 @@ var exampleInput string
 //go:embed input.txt
 var input string
 
-var inputRE = regexp.MustCompile(`^Blueprint (\d+): Each ore robot costs (\d+) ore. Each clay robot costs (\d+) ore. Each obsidian robot costs (\d+) ore and (\d+) clay. Each geode robot costs (\d+) ore and (\d+) obsidian.$`)
+var (
+	inputRE = regexp.MustCompile(`^Blueprint (\d+): Each ore robot costs (\d+) ore. Each clay robot costs (\d+) ore. Each obsidian robot costs (\d+) ore and (\d+) clay. Each geode robot costs (\d+) ore and (\d+) obsidian.$`)
+	maxTime = 24
+)
 
 type blueprint struct {
 	id                int
@@ -77,10 +80,6 @@ func parseBlueprints(in string) []blueprint {
 	return blueprints
 }
 
-const (
-	maxTime = 24
-)
-
 type state struct {
 	oreRobots      int
 	clayRobots     int
@@ -105,6 +104,7 @@ func run(b blueprint, time int, s state) int {
 		return s.geode
 	}
 
+	timeLeft := maxTime - time
 	ore, clay, obsidian := s.ore, s.clay, s.obsidian
 	// log.Printf("ore, clay obsidian: %d,%d,%d, time: %d", ore, clay, obsidian, time)
 
@@ -129,36 +129,36 @@ func run(b blueprint, time int, s state) int {
 		opt.obsidian -= b.geodeObsidianCost
 		opt.geodeRobots++
 		// log.Printf("geode spend, time %d, option: %#v", time, opt)
-		options = append(options, opt)
-	} else {
-		// ore
-		if ore >= b.oreOreCost && s.oreRobots < b.maxOre {
-			opt := s
-			opt.ore -= b.oreOreCost
-			opt.oreRobots++
-			// log.Printf("ore spend, time %d, option: %#v", time, opt)
-			options = append(options, opt)
-		}
-		// clay
-		if ore >= b.clayOreCost && s.clayRobots < b.maxClay {
-			opt := s
-			opt.ore -= b.clayOreCost
-			opt.clayRobots++
-			// log.Printf("clay spend, time %d, option: %#v", time, opt)
-			options = append(options, opt)
-		}
-		// obsidian
-		if ore >= b.obsidianOreCost && clay >= b.obsidianClayCost && s.obsidianRobots < b.maxObsidian {
-			opt := s
-			opt.ore -= b.obsidianOreCost
-			opt.clay -= b.obsidianClayCost
-			opt.obsidianRobots++
-			// log.Printf("obsidian spend, time %d, option: %#v", time, opt)
-			options = append(options, opt)
-		}
-
+		return run(b, time+1, opt)
 	}
-	maxGeode := 0
+
+	// ore
+	if ore >= b.oreOreCost && s.oreRobots < b.maxOre && s.oreRobots*timeLeft+ore < timeLeft*b.maxOre {
+		opt := s
+		opt.ore -= b.oreOreCost
+		opt.oreRobots++
+		// log.Printf("ore spend, time %d, option: %#v", time, opt)
+		options = append(options, opt)
+	}
+	// clay
+	if ore >= b.clayOreCost && s.clayRobots < b.maxClay && s.clayRobots*timeLeft+clay < timeLeft*b.maxClay {
+		opt := s
+		opt.ore -= b.clayOreCost
+		opt.clayRobots++
+		// log.Printf("clay spend, time %d, option: %#v", time, opt)
+		options = append(options, opt)
+	}
+	// obsidian
+	if ore >= b.obsidianOreCost && clay >= b.obsidianClayCost && s.obsidianRobots < b.maxObsidian && s.obsidianRobots*timeLeft+obsidian < timeLeft*b.maxObsidian {
+		opt := s
+		opt.ore -= b.obsidianOreCost
+		opt.clay -= b.obsidianClayCost
+		opt.obsidianRobots++
+		// log.Printf("obsidian spend, time %d, option: %#v", time, opt)
+		options = append(options, opt)
+	}
+
+	maxGeode := s.geode
 	for _, opt := range options {
 		numGeode := run(b, time+1, opt)
 		if numGeode > maxGeode {
@@ -184,9 +184,23 @@ func part1(in string) int {
 	return total
 }
 
+func part2(in string) int {
+	blueprints := parseBlueprints(in)
+
+	maxTime = 32
+	total := 1
+	for _, b := range blueprints[:3] {
+		// log.Printf("%+v", b)
+		max := run(b, 1, state{oreRobots: 1, best: map[int]int{}})
+		total *= max
+	}
+
+	return total
+}
+
 func main() {
-	fmt.Printf("Part 1 example: %d\n", part1(exampleInput))
+	// fmt.Printf("Part 1 example: %d\n", part1(exampleInput))
 	fmt.Printf("Part 1: %d\n", part1(input))
 	// fmt.Printf("Part 2 example: %d\n", part2(exampleInput))
-	// fmt.Printf("Part 2: %d\n", part2(input))
+	fmt.Printf("Part 2: %d\n", part2(input))
 }
